@@ -1,0 +1,46 @@
+version: '3.8'
+
+volumes:
+  mongocfamearn:
+
+services:
+  mearncfaclient:
+    container_name: cfaclient
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./client:/appclient
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    tty: true
+
+  mearncfaserver:
+    container_name: cfaserver
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - '5000:5000'
+    volumes:
+      - ./server:/appserver
+    environment:
+      - PORT=5000
+    depends_on:
+      - mongocfamearn
+    tty: true
+
+  mongocfamearn:
+    container_name: cfamongo
+    restart: always
+    image: mongo:latest
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongocfamearn:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=ern
+      - MONGO_INITDB_ROOT_PASSWORD=ern2024
+      - MONGO_INITDB_DATABASE=mongomearn
